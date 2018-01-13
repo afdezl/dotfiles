@@ -84,6 +84,6 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 # Load individual configuration files
-for f in ~/.zshrc.d/*.zshrc; do source $f; done
+for f in ~/.shrc.d/*.shrc; do source $f; done
 
 
