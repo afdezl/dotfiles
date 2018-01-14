@@ -1,2 +1,10 @@
 # AWS cli
-source /usr/local/bin/aws_zsh_completer.sh
+
+case $SHELL in
+*zsh)
+  source /usr/local/bin/aws_zsh_completer.sh
+  ;;
+*bash)
+  source /usr/local/bin/aws_bash_completer
+  ;;
+esac
