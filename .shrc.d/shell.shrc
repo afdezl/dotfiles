@@ -1,2 +1,2 @@
 # Misc shell commands
-alias ll="ls -alh"
+alias ll="ls -alFh"
