@@ -174,7 +174,7 @@ nnoremap <C-L> :nohl<CR><C-L>
 " ------------------------
 
 " Show a visual line under the cursor's current line
-set cursorline
+"set cursorline
 
 " Show the matching part of the pair for [] {} and ()
 set showmatch
