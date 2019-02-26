@@ -5,6 +5,6 @@ case $SHELL in
   source /usr/local/bin/aws_zsh_completer.sh
   ;;
 *bash)
-  source /usr/local/bin/aws_bash_completer
+  complete -C $(which aws_completer) aws
   ;;
 esac
