@@ -1,0 +1,3 @@
+charm() {
+    pycharm-professional "$1" &
+}
