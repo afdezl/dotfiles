@@ -1,0 +1,9 @@
+# Virtualenvwrapper completion
+
+export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
+
+if [ -f /usr/local/bin/virtualenvwrapper.sh ]; then
+    source /usr/local/bin/virtualenvwrapper.sh
+elif [ -f /home/${USER}/.local/bin/virtualenvwrapper.sh ]; then
+    source  /home/${USER}/.local/bin/virtualenvwrapper.sh
+fi
