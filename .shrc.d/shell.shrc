@@ -1,2 +1,19 @@
 # Misc shell commands
 alias ll="ls -alFh"
+
+myip() {
+  while getopts "n" options; do
+    netmask=""
+    case "${options}" in
+      n)
+      netmask="/32"
+      ;;
+      *)
+      echo "Unsupported argument"
+      exit 1
+    esac
+  done
+
+  ip=$(curl -sS ifconfig.co)
+  echo "${ip}${netmask}"
+}
