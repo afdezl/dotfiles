@@ -17,3 +17,5 @@ myip() {
   ip=$(curl -sS ifconfig.co)
   echo "${ip}${netmask}"
 }
+
+export PATH=$PATH:~/.local/bin
