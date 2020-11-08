@@ -18,4 +18,3 @@ myip() {
   echo "${ip}${netmask}"
 }
 
-export PATH=$PATH:~/.local/bin
