@@ -1,0 +1,4 @@
+[alias]
+	# https://gist.github.com/jasonrudolph/1810768#gistcomment-2678759
+	lb="!f() { git fetch && git branch -r | grep -v HEAD | while read b; do git log --color --format=\"%ci _%C(magenta)%cr %C(bold yellow)$b%Creset %s %C(bold blue)<%an>%Creset\" $b | head -n 1; done | sort -r | cut -d_ -f2- | sed 's;origin/;;g' | head -10; }; f"
+
