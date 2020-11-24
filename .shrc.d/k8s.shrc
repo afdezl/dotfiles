@@ -23,6 +23,11 @@ krn()
     | xargs -n 1 kubectl get --show-kind --ignore-not-found -n $1
 }
 
+quickpod()
+{
+    kubectl run my-shell --rm -i --tty --image ${1:-debian} -- bash
+}
+
 __kubectl_debug()
 {
     if [[ -n ${BASH_COMP_DEBUG_FILE} ]]; then
