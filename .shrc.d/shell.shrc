@@ -18,3 +18,7 @@ myip() {
   echo "${ip}${netmask}"
 }
 
+j2y() {
+  # https://gist.github.com/mboersma/1329671
+  python3 -c 'import sys, yaml, json; j=json.loads(sys.stdin.read()); print(yaml.safe_dump(j))'
+}
