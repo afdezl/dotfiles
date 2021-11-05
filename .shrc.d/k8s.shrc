@@ -25,7 +25,8 @@ krn()
 
 quickpod()
 {
-    kubectl run my-shell --rm -i --tty --image ${1:-debian} -- bash
+    # $1 image name; $2 namespacename
+    kubectl run my-shell --rm -i --tty --image ${1:-debian} -n ${2:-default} -- bash
 }
 
 __kubectl_debug()

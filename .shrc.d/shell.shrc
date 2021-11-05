@@ -1,5 +1,6 @@
 # Misc shell commands
 alias ll="ls -alFh"
+alias psgrep="ps aux | grep -v grep | grep"
 
 myip() {
   while getopts "n" options; do
