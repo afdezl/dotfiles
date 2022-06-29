@@ -2,6 +2,11 @@
 alias ll="ls -alFh"
 alias psgrep="ps aux | grep -v grep | grep"
 
+mkcd() {
+  mkdir -p "$@"
+  cd $_
+}
+
 myip() {
   while getopts "n" options; do
     netmask=""
@@ -22,4 +27,10 @@ myip() {
 j2y() {
   # https://gist.github.com/mboersma/1329671
   python3 -c 'import sys, yaml, json; j=json.loads(sys.stdin.read()); print(yaml.safe_dump(j))'
+}
+
+gcd() {
+  git clone $1
+  directory=${1##*/}
+  cd $directory
 }
