@@ -1,0 +1,2 @@
+. $HOME/.asdf/completions/asdf.bash
+. $HOME/.asdf/asdf.sh
