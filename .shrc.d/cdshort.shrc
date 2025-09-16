@@ -1,0 +1,208 @@
+#!/bin/bash
+
+# cdshort - Directory navigation with shortcuts
+# Usage: Source this file in your bashrc to enable cd shortcuts starting with @
+# Example: cd @Internal -> ~/Work/Devoteam/Internal
+
+# Configuration directory
+CDSHORT_CONFIG_DIR="$HOME/.config/cdshort"
+CDSHORT_SHORTCUTS_FILE="$CDSHORT_CONFIG_DIR/shortcuts"
+
+# Initialize configuration directory
+_cdshort_init() {
+    if [[ ! -d "$CDSHORT_CONFIG_DIR" ]]; then
+        mkdir -p "$CDSHORT_CONFIG_DIR"
+    fi
+    
+    if [[ ! -f "$CDSHORT_SHORTCUTS_FILE" ]]; then
+        touch "$CDSHORT_SHORTCUTS_FILE"
+    fi
+}
+
+# Add a shortcut
+cdshort_add() {
+    local shortcut="$1"
+    local path="$2"
+    
+    if [[ -z "$shortcut" || -z "$path" ]]; then
+        echo "Usage: cdshort_add <shortcut> <path>"
+        echo "Example: cdshort_add Internal ~/Work/Devoteam/Internal"
+        return 1
+    fi
+    
+    # Remove @ prefix if provided
+    shortcut="${shortcut#@}"
+    
+    # Expand path (resolve ~ and relative paths)
+    path=$(realpath -m "$path")
+    
+    # Check if directory exists
+    if [[ ! -d "$path" ]]; then
+        echo "Error: Directory '$path' does not exist"
+        return 1
+    fi
+    
+    _cdshort_init
+    
+    # Remove existing shortcut if it exists
+    if grep -q "^$shortcut=" "$CDSHORT_SHORTCUTS_FILE"; then
+        sed -i "/^$shortcut=/d" "$CDSHORT_SHORTCUTS_FILE"
+    fi
+    
+    # Add new shortcut
+    echo "$shortcut=$path" >> "$CDSHORT_SHORTCUTS_FILE"
+    echo "Added shortcut: @$shortcut -> $path"
+}
+
+# Remove a shortcut
+cdshort_remove() {
+    local shortcut="$1"
+    
+    if [[ -z "$shortcut" ]]; then
+        echo "Usage: cdshort_remove <shortcut>"
+        echo "Example: cdshort_remove Internal"
+        return 1
+    fi
+    
+    # Remove @ prefix if provided
+    shortcut="${shortcut#@}"
+    
+    _cdshort_init
+    
+    if grep -q "^$shortcut=" "$CDSHORT_SHORTCUTS_FILE"; then
+        sed -i "/^$shortcut=/d" "$CDSHORT_SHORTCUTS_FILE"
+        echo "Removed shortcut: @$shortcut"
+    else
+        echo "Shortcut '@$shortcut' not found"
+        return 1
+    fi
+}
+
+# List all shortcuts
+cdshort_list() {
+    _cdshort_init
+    
+    if [[ ! -s "$CDSHORT_SHORTCUTS_FILE" ]]; then
+        echo "No shortcuts configured"
+        return 0
+    fi
+    
+    echo "Configured shortcuts:"
+    while IFS='=' read -r shortcut path; do
+        echo "  @$shortcut -> $path"
+    done < "$CDSHORT_SHORTCUTS_FILE"
+}
+
+# Get path for a shortcut
+_cdshort_get_path() {
+    local shortcut="$1"
+    
+    # Remove @ prefix
+    shortcut="${shortcut#@}"
+    
+    _cdshort_init
+    
+    grep "^$shortcut=" "$CDSHORT_SHORTCUTS_FILE" | cut -d'=' -f2-
+}
+
+# Original cd command backup
+if [[ -z "$_CDSHORT_ORIGINAL_CD" ]]; then
+    _CDSHORT_ORIGINAL_CD=$(which cd 2>/dev/null || echo "builtin cd")
+fi
+
+# Enhanced cd function
+cd() {
+    local target="$1"
+    
+    # If no argument provided, use default cd behavior
+    if [[ -z "$target" ]]; then
+        builtin cd
+        return $?
+    fi
+    
+    # If target starts with @, try to resolve shortcut
+    if [[ "$target" == @* ]]; then
+        local resolved_path
+        resolved_path=$(_cdshort_get_path "$target")
+        
+        if [[ -n "$resolved_path" ]]; then
+            #echo "cdshort: @${target#@} -> $resolved_path"
+            builtin cd "$resolved_path"
+            return $?
+        else
+            echo "cdshort: Shortcut '$target' not found"
+            echo "Use 'cdshort_list' to see available shortcuts"
+            return 1
+        fi
+    else
+        # Normal cd behavior
+        builtin cd "$@"
+        return $?
+    fi
+}
+
+# Help function
+cdshort_help() {
+    cat << 'EOF'
+cdshort - Directory navigation with shortcuts
+
+USAGE:
+    cd @<shortcut>              Navigate to shortcut
+    cdshort_add <name> <path>   Add a new shortcut
+    cdshort_remove <name>       Remove a shortcut
+    cdshort_list                List all shortcuts
+    cdshort_help                Show this help
+
+EXAMPLES:
+    # Add a shortcut
+    cdshort_add Internal ~/Work/Devoteam/Internal
+    
+    # Use the shortcut
+    cd @Internal
+    
+    # List shortcuts
+    cdshort_list
+    
+    # Remove a shortcut
+    cdshort_remove Internal
+
+INSTALLATION:
+    Add this line to your ~/.bashrc:
+    source /path/to/cdshort.sh
+
+SHORTCUTS CONFIG:
+    Stored in: ~/.config/cdshort/shortcuts
+EOF
+}
+
+# Bash completion function
+_cdshort_completion() {
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    
+    # Only provide completion if we're completing after 'cd' and the current word starts with @
+    if [[ "${prev}" == "cd" && "${cur}" == @* ]]; then
+        _cdshort_init
+        
+        # Get all shortcuts from the config file
+        local shortcuts=""
+        if [[ -f "$CDSHORT_SHORTCUTS_FILE" ]]; then
+            shortcuts=$(cut -d'=' -f1 "$CDSHORT_SHORTCUTS_FILE" | sed 's/^/@/')
+        fi
+        
+        # Generate completions
+        COMPREPLY=( $(compgen -W "${shortcuts}" -- "${cur}") )
+    fi
+    
+    return 0
+}
+
+# Register completion function with bash
+complete -F _cdshort_completion cd
+
+# Initialize on source
+_cdshort_init
+
+#echo "cdshort loaded. Type 'cdshort_help' for usage information."

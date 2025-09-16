@@ -1,0 +1,13 @@
+# AWS cli
+
+#case $SHELL in
+#*zsh)
+#  source /usr/local/bin/aws_zsh_completer.sh
+#  ;;
+#*bash)
+#  source $(which aws_completer)
+#  complete -C $(which aws_completer) aws
+#  ;;
+#esac
+
+#export AWS_CLI_AUTO_PROMPT=on-partial
