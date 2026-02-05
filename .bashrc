@@ -173,3 +173,4 @@ export PROMPT_COMMAND="history -a; history -n"
 # Load individual configuration files
 for f in ~/.shrc.d/*.shrc; do source $f; done
 
+

@@ -177,12 +177,12 @@ EOF
 
 # Bash completion function
 _cdshort_completion() {
-    local cur prev opts
+    local cur prev
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     
-    # Only provide completion if we're completing after 'cd' and the current word starts with @
+    # If we're completing after 'cd' and the current word starts with @, provide shortcut completion
     if [[ "${prev}" == "cd" && "${cur}" == @* ]]; then
         _cdshort_init
         
@@ -192,15 +192,18 @@ _cdshort_completion() {
             shortcuts=$(cut -d'=' -f1 "$CDSHORT_SHORTCUTS_FILE" | sed 's/^/@/')
         fi
         
-        # Generate completions
+        # Generate completions for shortcuts
         COMPREPLY=( $(compgen -W "${shortcuts}" -- "${cur}") )
+    else
+        # Fall back to default directory completion for normal cd usage
+        COMPREPLY=( $(compgen -d -- "${cur}") )
     fi
     
     return 0
 }
 
 # Register completion function with bash
-complete -F _cdshort_completion cd
+complete -o nospace -F _cdshort_completion cd
 
 # Initialize on source
 _cdshort_init
